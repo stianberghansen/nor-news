@@ -1,3 +1,6 @@
+//Load .env variables
+require("dotenv").config();
+
 const puppeteer = require("puppeteer");
 const $ = require("cheerio");
 const cors = require("cors");

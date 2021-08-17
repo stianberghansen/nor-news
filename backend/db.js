@@ -1,11 +1,11 @@
 const mongoose = require("mongoose");
 const schema = require("./models");
 
-mongoose.connect("mongodb://192.168.86.222:27017/newsScraper", {
+mongoose.connect(process.env.DB_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    authSource: "admin",
-    auth: { user: "root", password: "pass12345" },
+    authSource: process.env.AUTH_SOURCE,
+    auth: { user: process.env.DB_USER, password: process.env.DB_PASSWORD },
 });
 
 const db = mongoose.connection;
