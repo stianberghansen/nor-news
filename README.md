@@ -13,11 +13,11 @@
 
 This project was created with `create-react-app`. Inside the frontent directory, start the front-end dev server with:
 
-### `npm start" : "react-scripts start"`
+#### `npm start`
 
 To start the nodejs server first edit the `.env.example` file with your db details and rename it to `.env`. Then start your database server, for an easier dev experience I recommend using the included `gdocker-copompose.yml` file. This includes mongo-express for easier db interaction. Finally, navigate to the backend directory and run:
 
-### `node app.js`
+#### `node app.js`
 
 ## Future updates
 
