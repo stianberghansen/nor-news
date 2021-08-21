@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const article = new mongoose.Schema({
+    articleID: { type: "string", required: "true", unique: "true" },
     title: { type: "string", required: "true" },
     url: { type: "string", required: "true", unique: "true", dropDups: "true" },
     brand: { type: "string", required: "true" },

@@ -1,5 +1,5 @@
-//Load .env variables
-require("dotenv").config();
+// Load .env variables
+require("dotenv").config({ path: __dirname + "/config/dev.env" });
 
 const puppeteer = require("puppeteer");
 const $ = require("cheerio");
@@ -8,7 +8,7 @@ const express = require("express");
 const cron = require("node-cron");
 const app = express();
 const db = require("./db");
-const fetchAndParse = require("./brandParser");
+const parseHTML = require("./htmlParser");
 
 const PORT = 4000;
 const TIMEOUT = 1000 * 1000;
@@ -18,25 +18,29 @@ cron.schedule("* * * * *", () => {
     fetchBrands();
 });
 
-fetchBrands = () => {
-    db.Brand.find().then((brand) => {
-        for (const b of brand) {
-            monitor(b);
-        }
+const browserArgs = ["--disable-gpu", "--no-sandbox"];
+
+fetchBrands = async () => {
+    const browser = await puppeteer.launch({
+        headless: true,
+        args: browserArgs,
     });
+    const brands = await db.Brand.find();
+
+    for (const brand of brands) {
+        await monitor(browser, brand);
+    }
+
+    await browser.close();
 };
 
-async function configureBrowser(url) {
-    const browser = await puppeteer.launch();
+monitor = async (browser, brand) => {
     const page = await browser.newPage();
-    await page.goto(url);
-    return page;
-}
-
-async function monitor(brand) {
-    let page = await configureBrowser(brand.url);
-    fetchAndParse(page, brand);
-}
+    await page.goto(brand.url);
+    const articles = await parseHTML(page, brand);
+    db.bulkInsert(articles);
+    await page.close();
+};
 
 app.get("/articles", (req, res) => {
     db.Article.find()
@@ -50,12 +54,14 @@ app.get("/articles", (req, res) => {
         });
 });
 
-fetchBrands();
-
 app.use("/", (req, res) => {
     res.json(Date());
 });
 
 app.listen(PORT, () => {
     console.log("listening on " + PORT);
+});
+
+process.on("unhandledRejection", (reason, p) => {
+    console.error("Unhandled Rejection at: Promise", p, "reason:", reason);
 });

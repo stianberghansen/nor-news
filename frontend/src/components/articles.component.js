@@ -46,10 +46,7 @@ export default class Articles extends Component {
     render() {
         return (
             <div>
-                <div className="avis">
-                    <h3>Dagbladet</h3>
-                    {this.displayArticles()}
-                </div>
+                <div className="avis">{this.displayArticles()}</div>
             </div>
         );
     }

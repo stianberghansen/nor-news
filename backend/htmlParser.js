@@ -1,69 +1,57 @@
 const $ = require("cheerio");
 const db = require("./db");
 
-async function fetchAndParse(page, brand) {
-    await page.reload();
+async function parseHTML(page, brand) {
     let html = await page.evaluate(() => document.body.innerHTML);
+    let articles = [];
     switch (brand.name) {
         case "Dagbladet":
-            let dbArticles = [];
             $("article", html).each(function (i, item) {
-                let headline = $(".headline", item).text();
-                let link = $("a", item).attr("href");
-                let type = $(item).attr("data-label");
+                const headline = $(".headline", item).text();
+                const link = $("a", item).attr("href");
+                const type = $(item).attr("data-label");
+                const articleID = link.split("/");
 
                 if (!headline | !link | (type == "pluss") | (type == "video")) {
                     return null;
                 } else {
                     const object = {
+                        articleID: articleID[5],
                         title: headline.toString(),
                         url: link.toString(),
                         brand: "Dagbladet",
                         datePosted: new Date(),
                     };
-                    dbArticles.push(object);
+                    articles.push(object);
                 }
             });
-            bulkInsert(dbArticles);
-            dbArticles = [];
             break;
         case "VG":
-            let vgArticles = [];
             $("article", html).each(function (i, item) {
                 const headline = $(".headline", item).text();
                 const link = $("a", item).attr("href");
                 const type = $(item).attr("data-paywall");
                 const datePosted = $("time", item).attr("datetime");
+                const articleID = $(item).attr("data-drfront-id");
 
                 if ((type == "true") | !datePosted | !headline) {
                     return null;
                 } else {
                     let object = {
+                        articleID: articleID,
                         title: headline.toString(),
                         url: link.toString(),
                         brand: "VG",
                         datePosted: datePosted,
                     };
-                    vgArticles.push(object);
+                    articles.push(object);
                 }
             });
-            bulkInsert(vgArticles);
-            vgArticles = [];
             break;
         default:
             console.log("No switch statement matching brand name");
     }
-    html = {};
+    return articles;
 }
 
-const bulkInsert = (data) => {
-    db.Article.insertMany(data, { ordered: false })
-        .then((res) => {
-            console.log("added " + res + " new articles");
-        })
-        .catch((err) => {
-            //console.error(err);
-        });
-};
-
-module.exports = fetchAndParse;
+module.exports = parseHTML;

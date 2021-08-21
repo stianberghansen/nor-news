@@ -4,7 +4,12 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node",
+    "dev": "env-cmd ./config/dev.env nodemon",
+    "test": "env-cmd ./config/test.env jest --watch"
+  },
+  "jest": {
+    "testEnvironment": "node"
   },
   "author": "",
   "license": "ISC",
@@ -13,8 +18,12 @@
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
+    "jest": "^27.0.6",
     "mongoose": "^5.13.7",
     "node-cron": "^3.0.0",
     "puppeteer": "^5.4.1"
+  },
+  "devDependencies": {
+    "supertest": "^6.1.6"
   }
 }
