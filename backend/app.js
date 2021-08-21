@@ -10,8 +10,7 @@ const app = express();
 const db = require("./db");
 const parseHTML = require("./htmlParser");
 
-const PORT = 4000;
-const TIMEOUT = 1000 * 1000;
+const PORT = process.env.PORT | 4000;
 
 app.use(cors());
 cron.schedule("* * * * *", () => {
@@ -44,7 +43,7 @@ monitor = async (browser, brand) => {
 
 app.get("/articles", (req, res) => {
     db.Article.find()
-        .sort({ datePosted: -1 })
+        .sort({ datePosted: 1 })
         .limit(100)
         .then((latestArticles) => {
             res.json(latestArticles);
@@ -53,6 +52,8 @@ app.get("/articles", (req, res) => {
             console.log(err);
         });
 });
+
+fetchBrands();
 
 app.use("/", (req, res) => {
     res.json(Date());

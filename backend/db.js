@@ -25,7 +25,7 @@ const bulkInsert = (data) => {
         })
         .catch((err) => {
             if (err.code == 11000) {
-                console.log("no new articles found");
+                console.log("no new articles added");
             } else {
                 console.error(err);
             }
