@@ -7,7 +7,9 @@ async function parseHTML(page, brand) {
     switch (brand.name) {
         case "Dagbladet":
             $("article", html).each(function (i, item) {
-                const headline = $(".headline", item).text();
+                const headline = $("a", item)
+                    .attr("aria-label")
+                    .replace(/<\/?[^>]+(>|$)/g, "");
                 const link = $("a", item).attr("href");
                 const type = $(item).attr("data-label");
                 const articleID = link.split("/");
@@ -28,13 +30,16 @@ async function parseHTML(page, brand) {
             break;
         case "VG":
             $("article", html).each(function (i, item) {
-                const headline = $(".headline", item).text();
+                $(".article-meta", item).remove();
+                const headline = $(".titles", item)
+                    .text()
+                    .replace(/\n/g, " ")
+                    .trim();
                 const link = $("a", item).attr("href");
                 const type = $(item).attr("data-paywall");
-                const datePosted = $("time", item).attr("datetime");
                 const articleID = $(item).attr("data-drfront-id");
 
-                if ((type == "true") | !datePosted | !headline) {
+                if ((type == "true") | !headline | !link | !articleID) {
                     return null;
                 } else {
                     let object = {
@@ -42,7 +47,7 @@ async function parseHTML(page, brand) {
                         title: headline.toString(),
                         url: link.toString(),
                         brand: "VG",
-                        datePosted: datePosted,
+                        datePosted: new Date(),
                     };
                     articles.push(object);
                 }
