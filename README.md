@@ -21,7 +21,7 @@ To start the nodejs server first edit the `.env.example` file with your db detai
 
 ## Future updates
 
--   [ ] Parsing multi-line headlines
+-   [x] Parsing multi-line headlines
 -   [ ] Adding additional news sources
 -   [x] Updating schema and parsers with article IDs
 -   [ ] Front-end parsing of news sources into individual components
