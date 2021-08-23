@@ -1,8 +1,17 @@
 const $ = require("cheerio");
 const db = require("./db");
 
-async function parseHTML(page, brand) {
-    let html = await page.evaluate(() => document.body.innerHTML);
+const Article = (id, headline, url, brand) => {
+    return {
+        articleID: id,
+        title: headline,
+        url: url,
+        brand: brand,
+        datePosted: new Date(),
+    };
+};
+
+async function parseHTML(html, brand) {
     let articles = [];
     switch (brand.name) {
         case "Dagbladet":
@@ -10,20 +19,25 @@ async function parseHTML(page, brand) {
                 const headline = $("a", item)
                     .attr("aria-label")
                     .replace(/<\/?[^>]+(>|$)/g, "");
-                const link = $("a", item).attr("href");
+                const url = $("a", item).attr("href");
                 const type = $(item).attr("data-label");
-                const articleID = link.split("/");
+                const articleID = url.split("/");
 
-                if (!headline | !link | (type == "pluss") | (type == "video")) {
+                if (
+                    !articleID[5] |
+                    !headline |
+                    !url |
+                    (type == "pluss") |
+                    (type == "video")
+                ) {
                     return null;
                 } else {
-                    const object = {
-                        articleID: articleID[5],
-                        title: headline.toString(),
-                        url: link.toString(),
-                        brand: "Dagbladet",
-                        datePosted: new Date(),
-                    };
+                    const object = Article(
+                        articleID[5],
+                        headline,
+                        url,
+                        "Dagbladet"
+                    );
                     articles.push(object);
                 }
             });
@@ -35,20 +49,14 @@ async function parseHTML(page, brand) {
                     .text()
                     .replace(/\n/g, " ")
                     .trim();
-                const link = $("a", item).attr("href");
+                const url = $("a", item).attr("href");
                 const type = $(item).attr("data-paywall");
                 const articleID = $(item).attr("data-drfront-id");
 
-                if ((type == "true") | !headline | !link | !articleID) {
+                if ((type == "true") | !headline | !url | !articleID) {
                     return null;
                 } else {
-                    let object = {
-                        articleID: articleID,
-                        title: headline.toString(),
-                        url: link.toString(),
-                        brand: "VG",
-                        datePosted: new Date(),
-                    };
+                    const object = Article(articleID, headline, url, "VG");
                     articles.push(object);
                 }
             });

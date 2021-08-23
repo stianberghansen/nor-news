@@ -1,29 +1,30 @@
 {
-  "name": "newsscraper",
-  "version": "1.0.0",
-  "description": "",
-  "main": "app.js",
-  "scripts": {
-    "start": "node",
-    "dev": "env-cmd ./config/dev.env nodemon",
-    "test": "env-cmd ./config/test.env jest --watch"
-  },
-  "jest": {
-    "testEnvironment": "node"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "cheerio": "^1.0.0-rc.3",
-    "cors": "^2.8.5",
-    "dotenv": "^10.0.0",
-    "express": "^4.17.1",
-    "jest": "^27.0.6",
-    "mongoose": "^5.13.7",
-    "node-cron": "^3.0.0",
-    "puppeteer": "^5.4.1"
-  },
-  "devDependencies": {
-    "supertest": "^6.1.6"
-  }
+    "name": "newsscraper",
+    "version": "1.0.0",
+    "description": "",
+    "main": "app.js",
+    "scripts": {
+        "start": "node",
+        "dev": "env-cmd ./config/dev.env nodemon",
+        "test": "env-cmd --file ./config/dev.env jest --watch"
+    },
+    "jest": {
+        "testEnvironment": "node"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "cheerio": "^1.0.0-rc.3",
+        "cors": "^2.8.5",
+        "dotenv": "^10.0.0",
+        "env-cmd": "^10.1.0",
+        "express": "^4.17.1",
+        "jest": "^27.0.6",
+        "mongoose": "^5.13.7",
+        "node-cron": "^3.0.0",
+        "puppeteer": "^5.4.1"
+    },
+    "devDependencies": {
+        "supertest": "^6.1.6"
+    }
 }

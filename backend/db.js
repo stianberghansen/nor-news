@@ -13,7 +13,11 @@ mongoose.set("useCreateIndex", true);
 const db = mongoose.connection;
 
 db.on("error", console.error.bind(console, "connection error:"));
-db.once("open", () => console.log("Database connection succeeded"));
+db.once("open", () => console.log("Database connection established"));
+
+const closeConnection = () => {
+    mongoose.connection.close();
+};
 
 const Article = db.model("Article", schema.article);
 const Brand = db.model("Brand", schema.brand);
@@ -32,4 +36,4 @@ const bulkInsert = (data) => {
         });
 };
 
-module.exports = { Article, Brand, bulkInsert };
+module.exports = { Article, Brand, bulkInsert, closeConnection };
