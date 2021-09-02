@@ -24,14 +24,18 @@ const closeConnection = () => {
 
 const bulkInsert = (data) => {
     return new Promise((resolve, reject) => {
-        Article.insertMany(data, { ordered: false }, function (err, res) {
-            if (err.writeErrors) {
-                if (err.code != 11000) {
-                    reject(err);
+        try {
+            Article.insertMany(data, { ordered: false }, function (err, res) {
+                if (err.writeErrors) {
+                    if (err.code != 11000) {
+                        reject(err);
+                    }
                 }
-            }
-            resolve(true);
-        });
+                resolve(true);
+            });
+        } catch (err) {
+            throw new Error("No data passed", { cause: err });
+        }
     });
 };
 

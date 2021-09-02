@@ -1,7 +1,12 @@
 const $ = require("cheerio");
 const db = require("./db");
 
-const Article = (id, headline, url, brand) => {
+const Article = (
+    id = isRequired("id"),
+    headline = isRequired("headline"),
+    url = isRequired("url"),
+    brand = isRequired("brand")
+) => {
     return {
         articleID: id,
         title: headline,
@@ -9,6 +14,10 @@ const Article = (id, headline, url, brand) => {
         brand: brand,
         datePosted: new Date(),
     };
+};
+
+isRequired = (argumentName) => {
+    throw new Error(`${argumentName} is a required argument`);
 };
 
 async function parseHTML(html, brand) {
@@ -68,7 +77,7 @@ async function parseHTML(html, brand) {
     return articles;
 }
 
-(parseUrl) => (url, target) => {
+parseUrl = (url, target) => {
     const arr = url.split("/");
 
     if (!targetValidation(target)) {

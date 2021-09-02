@@ -6,7 +6,7 @@ const cors = require("cors");
 const express = require("express");
 const cron = require("node-cron");
 const app = express();
-const db = require("./db");
+const article = require("./db").Article;
 const scraper = require("./scraper");
 
 const PORT = process.env.PORT | 4000;
@@ -16,10 +16,9 @@ cron.schedule("* * * * *", () => {
     scraper.fetchNewArticles();
 });
 
-scraper.fetchNewArticles();
-
 app.get("/articles", (req, res) => {
-    db.Article.find()
+    article
+        .find()
         .sort({ datePosted: 1 })
         .limit(100)
         .then((latestArticles) => {
@@ -30,7 +29,7 @@ app.get("/articles", (req, res) => {
         });
 });
 
-app.use("/", (req, res) => {
+app.use("/healthcheck", (req, res) => {
     res.json(Date());
 });
 
@@ -41,6 +40,7 @@ const server = app.listen(PORT, () => {
 
 process.on("unhandledRejection", (reason, p) => {
     console.error("Unhandled Rejection at: Promise", p, "reason:", reason);
+    process.exit(1);
 });
 
 process.on("SIGTERM", () => {
@@ -56,3 +56,5 @@ process.on("SIGTERM", () => {
         process.exit(0);
     });
 });
+
+module.exports = server;
