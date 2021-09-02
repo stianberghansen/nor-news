@@ -25,6 +25,7 @@
         "puppeteer": "^5.4.1"
     },
     "devDependencies": {
+        "mongodb-memory-server": "^7.3.6",
         "supertest": "^6.1.6"
     }
 }

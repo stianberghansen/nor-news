@@ -15,25 +15,24 @@ const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error:"));
 db.once("open", () => console.log("Database connection established"));
 
+const Article = db.model("Article", schema.article);
+const Brand = db.model("Brand", schema.brand);
+
 const closeConnection = () => {
     mongoose.connection.close();
 };
 
-const Article = db.model("Article", schema.article);
-const Brand = db.model("Brand", schema.brand);
-
 const bulkInsert = (data) => {
-    Article.insertMany(data, { ordered: false })
-        .then((res) => {
-            console.log("added new articles");
-        })
-        .catch((err) => {
-            if (err.code == 11000) {
-                console.log("no new articles added");
-            } else {
-                console.error(err);
+    return new Promise((resolve, reject) => {
+        Article.insertMany(data, { ordered: false }, function (err, res) {
+            if (err.writeErrors) {
+                if (err.code != 11000) {
+                    reject(err);
+                }
             }
+            resolve(true);
         });
+    });
 };
 
 module.exports = { Article, Brand, bulkInsert, closeConnection };

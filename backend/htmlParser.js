@@ -18,7 +18,8 @@ async function parseHTML(html, brand) {
             $("article", html).each(function (i, item) {
                 const headline = $("a", item)
                     .attr("aria-label")
-                    .replace(/<\/?[^>]+(>|$)/g, "");
+                    .replace(/<\/?[^>]+(>|$)/g, "")
+                    .replace(/\&nbsp;/g, " ");
                 const url = $("a", item).attr("href");
                 const type = $(item).attr("data-label");
                 const articleID = url.split("/");
@@ -66,5 +67,31 @@ async function parseHTML(html, brand) {
     }
     return articles;
 }
+
+(parseUrl) => (url, target) => {
+    const arr = url.split("/");
+
+    if (!targetValidation(target)) {
+        console.log("Check target argument");
+        return null;
+    }
+
+    for (const elem of arr) {
+        if ((elem.length == target.length) & (elem.typeOf == target.type)) {
+            return result;
+        }
+    }
+
+    return null;
+};
+
+targetValidation = (target, validKeyNames) => {
+    //const validKeyNames = ["length", "type"];
+    return Object.keys(validKeyNames).every((elem) => target.includes(elem));
+};
+
+//const testURL =
+//("https://www.dagbladet.no/sport/kommer-med-beklagelse---benekter-narkotikabruk/74141645?articleToken=7137029c8f6a5940e77314cb705b7ccd33e9c503924dd8c8079c4783794da4a0");
+//parseUrl(testURL, { id: String() });
 
 module.exports = parseHTML;
