@@ -1,12 +1,14 @@
 const mongoose = require("mongoose");
 const schema = require("./models");
 
-mongoose.connect(process.env.DB_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    authSource: process.env.AUTH_SOURCE,
-    auth: { user: process.env.DB_USER, password: process.env.DB_PASSWORD },
-});
+createConnection = () => {
+    mongoose.connect(process.env.DB_URL, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        authSource: process.env.AUTH_SOURCE,
+        auth: { user: process.env.DB_USER, password: process.env.DB_PASSWORD },
+    });
+};
 
 mongoose.set("useCreateIndex", true);
 
@@ -18,11 +20,13 @@ db.once("open", () => console.log("Database connection established"));
 const Article = db.model("Article", schema.article);
 const Brand = db.model("Brand", schema.brand);
 
-const closeConnection = () => {
-    mongoose.connection.close();
+closeConnection = () => {
+    mongoose.connection.close(() => {
+        console.log("Database connection closed");
+    });
 };
 
-const bulkInsert = (data) => {
+bulkInsert = (data) => {
     return new Promise((resolve, reject) => {
         try {
             Article.insertMany(data, { ordered: false }, function (err, res) {
@@ -39,4 +43,10 @@ const bulkInsert = (data) => {
     });
 };
 
-module.exports = { Article, Brand, bulkInsert, closeConnection };
+module.exports = {
+    Article,
+    Brand,
+    bulkInsert,
+    createConnection,
+    closeConnection,
+};

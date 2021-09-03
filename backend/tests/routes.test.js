@@ -24,13 +24,19 @@ afterEach((done) => {
     });
 });
 
-afterAll((done) => {
-    mongoose.connection.close(() => done());
+afterAll(async () => {
+    await mongoose.connection.close();
+    await server.close();
+    console.log("done");
 });
 
 test("responds with json", async () => {
     await request(server)
         .get("/healthcheck")
         .expect("Content-Type", /json/)
-        .expect(200);
+        .expect(200)
+        .then((res) => {
+            expect(res.body.length).toBeGreaterThan(30);
+            expect(res.body.length).toBeLessThan(65);
+        });
 });

@@ -1,6 +1,8 @@
 const puppeteer = require("puppeteer");
 const parseHTML = require("../htmlParser");
-const db = require("../db");
+const mongoose = require("mongoose");
+const Article = require("../db").Article;
+const Brand = require("../db").Brand;
 
 const browserArgs = ["--disable-gpu", "--no-sandbox"];
 
@@ -38,15 +40,36 @@ beforeAll(async () => {
     await browser.init();
 });
 
+beforeEach((done) => {
+    mongoose.connect(
+        process.env.DB_URL,
+        {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            authSource: process.env.AUTH_SOURCE,
+            auth: {
+                user: process.env.DB_USER,
+                password: process.env.DB_PASSWORD,
+            },
+        },
+        () => done()
+    );
+});
+
 afterAll(async () => {
     await browser.closeBrowser();
-    db.closeConnection();
+});
+
+afterEach((done) => {
+    mongoose.connection.db.dropDatabase(() => {
+        mongoose.connection.close(() => done());
+    });
 });
 
 describe("Test parser against all brands in db", () => {
-    test("fetching and parsing websites of brands in db", async () => {
+    it("fetching and parsing websites of brands in db", async () => {
         //Fetch all brands w/urls from database
-        const brands = await db.Brand.find();
+        const brands = await Brand.find();
 
         //Fetch all websites and parse html for all articles
         for (const brand of brands) {
@@ -59,12 +82,16 @@ describe("Test parser against all brands in db", () => {
                 expect(article).toEqual(
                     expect.objectContaining({
                         articleID: expect.any(String),
-                        url: expect.any(String),
-                        brand: expect.any(String),
+                        url: expect
+                            .toMatch(/`${brand.name}`/)
+                            .toMatch(/https:/)
+                            .toBe(/www/),
+                        brand: expect.toEqual(brand.name),
                         datePosted: expect.any(Date),
-                        title: expect.any(String),
+                        title: expect.any(String).toBeGreaterThan,
                     })
                 );
+                expect(url.length).toBeGreaterThan(11);
             }
         }
     }, 15000);

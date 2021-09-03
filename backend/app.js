@@ -1,17 +1,35 @@
 // Load .env variables
 require("dotenv").config({ path: __dirname + "/config/dev.env" });
+
+// Setup process.send to accept function
 process.send = process.send || function () {};
 
+//Dependencies
 const cors = require("cors");
-const express = require("express");
 const cron = require("node-cron");
+const express = require("express");
 const app = express();
+const morgan = require("morgan");
+const fs = require("fs");
+const path = require("path");
+const rfs = require("rotating-file-stream");
+
+// Module imports
 const article = require("./db").Article;
+const connectToDb = require("./db").createConnection;
 const scraper = require("./scraper");
 
 const PORT = process.env.PORT | 4000;
 
+//Middleware
+const accessLogStream = rfs.createStream("access.log", {
+    interval: "7d",
+    path: path.join(__dirname, "log"),
+});
+app.use(morgan("short", { stream: accessLogStream }));
 app.use(cors());
+
+// Scraper scheduler
 cron.schedule("* * * * *", () => {
     scraper.fetchNewArticles();
 });
@@ -29,12 +47,21 @@ app.get("/articles", (req, res) => {
         });
 });
 
-app.use("/healthcheck", (req, res) => {
+scraper.fetchNewArticles();
+
+app.get("/healthcheck", (req, res) => {
     res.json(Date());
 });
 
+const unknownEndpoint = (req, res) => {
+    res.status(404).send({ error: "unknown endpoint" });
+};
+
+app.use(unknownEndpoint);
+
 const server = app.listen(PORT, () => {
     console.log("listening on " + PORT);
+    connectToDb();
     process.send("ready");
 });
 
